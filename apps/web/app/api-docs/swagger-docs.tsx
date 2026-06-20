@@ -3,5 +3,9 @@
 import SwaggerUI from "swagger-ui-react";
 
 export default function SwaggerDocs() {
-  return <SwaggerUI url="/api/openapi" />;
+  return (
+    <main className="swagger-docs">
+      <SwaggerUI url="/api/openapi" />
+    </main>
+  );
 }
