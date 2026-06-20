@@ -1,8 +1,15 @@
+import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { employeeCreateSchema, normalizeEmployeeInput } from "@/lib/validators";
 import { NextResponse } from "next/server";
 
 export async function GET() {
+  const session = await requirePermission("admin:employees");
+
+  if (!session) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const employees = await prisma.employee.findMany({
     orderBy: [{ lastName: "asc" }, { firstName: "asc" }]
   });
@@ -11,6 +18,12 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const session = await requirePermission("admin:employees");
+
+  if (!session) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const body = await request.json().catch(() => null);
   const parsed = employeeCreateSchema.safeParse(body);
 

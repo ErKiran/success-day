@@ -38,6 +38,7 @@ The HR database starts empty.
 - Success Day App: `http://localhost:3000`
 - Login Page: `http://localhost:3000/login`
 - Employees Page: `http://localhost:3000/employees`
+- Developer Dashboard: `http://localhost:3000/developer`
 - API Docs: `http://localhost:3000/api-docs`
 - OpenAPI JSON: `http://localhost:3000/api/openapi`
 - Postman Collection: `http://localhost:3000/api/postman`
@@ -54,12 +55,22 @@ Username: admin
 Password: admin
 ```
 
-Success Day app login:
+Success Day admin app login:
 
 ```txt
 Username: admin@successday.local
 Password: Admin123!
 ```
+
+Success Day developer app login:
+
+```txt
+Username: developer@successday.local
+Password: Developer123!
+Permissions: developer:sso, developer:saml
+```
+
+If you already started this lab before the developer role was added, Keycloak may keep the old realm from the Docker volume. Recreate the Keycloak volume or add the `success-day-developer` role and developer user manually in the Keycloak admin console.
 
 SCIM API:
 
@@ -92,6 +103,17 @@ docker compose exec success-day-web npm run import:employees -- /app/samples/emp
 ```
 
 Imports upsert employees by `employeeId`.
+
+## Developer SSO Dashboard
+
+Developers with the `success-day-developer` role are routed to `/developer`.
+
+The developer dashboard stores SAML SSO configurations in the Success Day database. Each configuration supports create, edit, enable, disable, and delete actions. After saving a SAML provider, the dashboard shows the generated service provider values for IdP setup:
+
+```txt
+Entity ID: http://localhost:3000/api/saml/{configurationId}/metadata
+ACS URL: http://localhost:3000/api/saml/{configurationId}/acs
+```
 
 The import supports these columns:
 

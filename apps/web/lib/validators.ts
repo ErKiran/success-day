@@ -58,3 +58,21 @@ export function dateInputValue(value: Date | string) {
   const date = typeof value === "string" ? new Date(value) : value;
   return date.toISOString().slice(0, 10);
 }
+
+export const samlSsoConfigurationSchema = z.object({
+  name: z.string().trim().min(2, "Name is required"),
+  idpEntityId: z.string().trim().min(2, "IdP entity ID is required"),
+  idpSsoUrl: z.string().trim().url("A valid SSO URL is required"),
+  idpSloUrl: z.string().trim().url("A valid SLO URL is required").optional().or(z.literal("")),
+  certificate: z.string().trim().min(20, "Certificate is required"),
+  enabled: z.boolean().default(false)
+});
+
+export type SamlSsoConfigurationInput = z.infer<typeof samlSsoConfigurationSchema>;
+
+export function normalizeSamlSsoConfigurationInput(input: SamlSsoConfigurationInput) {
+  return {
+    ...input,
+    idpSloUrl: input.idpSloUrl || null
+  };
+}

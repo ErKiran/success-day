@@ -1,9 +1,9 @@
 import EmployeeForm from "@/components/EmployeeForm";
-import { requireSession } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
 export default async function NewEmployeePage() {
-  const session = await requireSession();
+  const session = await requirePermission("admin:employees");
 
   if (!session) {
     redirect("/login");

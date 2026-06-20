@@ -6,6 +6,15 @@
       {
         "name": "success-day-admin",
         "description": "Success Day application administrator"
+      },
+      {
+        "name": "success-day-developer",
+        "description": "Success Day developer with SSO configuration access",
+        "attributes": {
+          "permissions": [
+            "developer:sso,developer:saml"
+          ]
+        }
       }
     ]
   },
@@ -48,6 +57,24 @@
       ],
       "realmRoles": [
         "success-day-admin"
+      ]
+    },
+    {
+      "username": "developer@successday.local",
+      "email": "developer@successday.local",
+      "firstName": "Success",
+      "lastName": "Developer",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Developer123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "success-day-developer"
       ]
     }
   ]

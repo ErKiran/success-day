@@ -1,11 +1,11 @@
 import EmployeeForm from "@/components/EmployeeForm";
-import { requireSession } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { dateInputValue } from "@/lib/validators";
 import { notFound, redirect } from "next/navigation";
 
 export default async function EditEmployeePage({ params }: { params: Promise<{ id: string }> }) {
-  const session = await requireSession();
+  const session = await requirePermission("admin:employees");
 
   if (!session) {
     redirect("/login");

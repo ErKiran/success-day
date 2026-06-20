@@ -1,7 +1,14 @@
+import { requirePermission } from "@/lib/auth";
 import { parseEmployeeImport, importEmployees } from "@/lib/import";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
+  const session = await requirePermission("admin:employees");
+
+  if (!session) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const formData = await request.formData();
   const file = formData.get("file");
 

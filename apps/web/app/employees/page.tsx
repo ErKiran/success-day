@@ -1,12 +1,12 @@
 import EmployeeTable from "@/components/EmployeeTable";
 import ImportEmployees from "@/components/ImportEmployees";
-import { requireSession } from "@/lib/auth";
+import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
 export default async function EmployeesPage() {
-  const session = await requireSession();
+  const session = await requirePermission("admin:employees");
 
   if (!session) {
     redirect("/login");

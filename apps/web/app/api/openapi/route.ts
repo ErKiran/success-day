@@ -32,6 +32,36 @@ export async function GET() {
       "/api/postman": {
         get: { summary: "Get Postman collection", responses: { "200": { description: "Postman collection JSON" } } }
       },
+      "/api/developer/saml-configs": {
+        get: {
+          summary: "List SAML SSO configurations",
+          responses: { "200": { description: "SAML SSO configurations" } }
+        },
+        post: {
+          summary: "Create SAML SSO configuration",
+          responses: { "201": { description: "SAML SSO configuration created" } }
+        }
+      },
+      "/api/developer/saml-configs/{id}": {
+        put: {
+          summary: "Update SAML SSO configuration",
+          responses: { "200": { description: "SAML SSO configuration updated" } }
+        },
+        patch: {
+          summary: "Enable or disable SAML SSO configuration",
+          responses: { "200": { description: "SAML SSO configuration updated" } }
+        },
+        delete: {
+          summary: "Delete SAML SSO configuration",
+          responses: { "200": { description: "SAML SSO configuration deleted" } }
+        }
+      },
+      "/api/saml/{id}/metadata": {
+        get: { summary: "Get SAML SP metadata", responses: { "200": { description: "SAML metadata XML" } } }
+      },
+      "/api/saml/{id}/acs": {
+        post: { summary: "SAML assertion consumer service", responses: { "200": { description: "SAML ACS response" } } }
+      },
       "/api/scim/v2/Users": {
         get: { summary: "List SCIM users", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM users" } } },
         post: { summary: "Create SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "201": { description: "SCIM user" } } }
