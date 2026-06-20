@@ -1,7 +1,5 @@
 import { readFileSync } from "node:fs";
-import { extname } from "node:path";
-import { prisma } from "../lib/prisma";
-import { employeeCreateSchema, normalizeEmployeeInput } from "../lib/validators";
+import { importEmployees, parseEmployeeImport } from "../lib/import";
 
 const filePath = process.argv[2];
 
@@ -10,37 +8,12 @@ if (!filePath) {
   process.exit(1);
 }
 
-function parseCsv(content: string) {
-  const [headerLine, ...lines] = content.trim().split(/\r?\n/);
-  const headers = headerLine.split(",");
-
-  return lines.map((line) => {
-    const values = line.split(",");
-    return Object.fromEntries(headers.map((header, index) => [header, values[index] ?? ""]));
-  });
-}
-
 const content = readFileSync(filePath, "utf8");
-const rows = extname(filePath).toLowerCase() === ".json" ? JSON.parse(content) : parseCsv(content);
+const rows = parseEmployeeImport(content, filePath);
+const { imported, errors } = await importEmployees(rows);
 
-let imported = 0;
-
-for (const row of rows) {
-  const parsed = employeeCreateSchema.safeParse(row);
-
-  if (!parsed.success) {
-    console.error(`Skipping ${row.employeeId ?? "unknown"}: ${JSON.stringify(parsed.error.flatten().fieldErrors)}`);
-    continue;
-  }
-
-  await prisma.employee.upsert({
-    where: { employeeId: parsed.data.employeeId },
-    create: normalizeEmployeeInput(parsed.data),
-    update: normalizeEmployeeInput(parsed.data)
-  });
-
-  imported += 1;
+for (const error of errors) {
+  console.error(`Skipping ${error}`);
 }
 
-await prisma.$disconnect();
 console.log(`Imported ${imported} employees.`);

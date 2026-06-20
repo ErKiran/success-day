@@ -13,7 +13,8 @@ export default async function LoginPage() {
     <main className="login">
       <section className="panel">
         <p className="brand">Success Day</p>
-        <p className="muted">Minimal HR source application for IAM and IGA labs.</p>
+        <h1>HRIS for Hustler</h1>
+        <p className="muted">A clean, modern HR source for IAM and IGA labs.</p>
         <LoginButton />
       </section>
     </main>

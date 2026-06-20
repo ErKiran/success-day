@@ -15,10 +15,16 @@ export default async function NewEmployeePage() {
         <div className="topbar">
           <div>
             <div className="brand">Success Day</div>
-            <p className="muted">Add Employee</p>
+            <p className="slogan">HRIS for Hustler</p>
           </div>
         </div>
         <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <h1>Add Employee</h1>
+              <p className="muted">Capture the core identity and workforce attributes.</p>
+            </div>
+          </div>
           <EmployeeForm />
         </section>
       </div>

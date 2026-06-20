@@ -24,10 +24,16 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
         <div className="topbar">
           <div>
             <div className="brand">Success Day</div>
-            <p className="muted">Edit Employee</p>
+            <p className="slogan">HRIS for Hustler</p>
           </div>
         </div>
         <section className="panel">
+          <div className="panel-heading">
+            <div>
+              <h1>Edit Employee</h1>
+              <p className="muted">Update source-of-truth attributes for identity flows.</p>
+            </div>
+          </div>
           <EmployeeForm
             employee={{
               id: employee.id,
@@ -36,13 +42,18 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
               lastName: employee.lastName,
               email: employee.email,
               username: employee.username,
+              phoneNumber: employee.phoneNumber ?? "",
               department: employee.department,
               jobTitle: employee.jobTitle,
               managerEmail: employee.managerEmail ?? "",
               employmentType: employee.employmentType,
+              contractDuration: employee.contractDuration ?? "",
               status: employee.status,
               startDate: dateInputValue(employee.startDate),
-              location: employee.location ?? ""
+              location: employee.location ?? "",
+              country: employee.country ?? "",
+              state: employee.state ?? "",
+              streetAddress: employee.streetAddress ?? ""
             }}
           />
         </section>

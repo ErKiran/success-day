@@ -19,6 +19,12 @@ export async function GET(request: Request) {
         name: "Bearer Token",
         description: "Static bearer token",
         primary: true
+      },
+      {
+        type: "httpbasic",
+        name: "Basic Auth",
+        description: "Static SCIM username and password",
+        primary: false
       }
     ]
   });

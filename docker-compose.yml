@@ -14,6 +14,8 @@ services:
       - KEYCLOAK_CLIENT_ID=success-day-web
       - KEYCLOAK_CLIENT_SECRET=success-day-secret
       - SCIM_BEARER_TOKEN=dev-scim-token
+      - SCIM_BASIC_USERNAME=scim
+      - SCIM_BASIC_PASSWORD=scim-secret
     volumes:
       - success_day_data:/app/data
       - ./samples:/app/samples:ro

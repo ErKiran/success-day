@@ -1,6 +1,10 @@
 # Success Day
 
-Success Day is a minimal HR source application for IAM and IGA labs. It provides Keycloak login, employee management, a SQLite-backed HR database, and a small SCIM 2.0 Users API.
+Success Day is a minimal HR source application for IAM and IGA labs.
+
+**HRIS for Hustler**
+
+It provides Keycloak login, employee management, CSV/JSON import, a SQLite-backed HR database, and a small SCIM 2.0 Users API.
 
 ## Start The Lab
 
@@ -32,6 +36,9 @@ The HR database starts empty.
 - Success Day App: `http://localhost:3000`
 - Login Page: `http://localhost:3000/login`
 - Employees Page: `http://localhost:3000/employees`
+- API Docs: `http://localhost:3000/api-docs`
+- OpenAPI JSON: `http://localhost:3000/api/openapi`
+- Postman Collection: `http://localhost:3000/api/postman`
 - Keycloak Admin Console: `http://localhost:8080`
 - SCIM Base URL: `http://localhost:3000/api/scim/v2`
 - SCIM Users Endpoint: `http://localhost:3000/api/scim/v2/Users`
@@ -56,11 +63,13 @@ SCIM API:
 
 ```txt
 Bearer Token: dev-scim-token
+Basic Username: scim
+Basic Password: scim-secret
 ```
 
 ## Employee Management
 
-After logging in, use `/employees` to list employees, add a new employee, or edit an existing employee.
+After logging in, use `/employees` to list employees, add a new employee, edit an existing employee, or import employees from CSV/JSON.
 
 Deleting an employee through the REST API does not hard-delete the record. It sets the employee status to `TERMINATED`.
 
@@ -82,6 +91,12 @@ docker compose exec success-day-web npm run import:employees -- /app/samples/emp
 
 Imports upsert employees by `employeeId`.
 
+The import supports these columns:
+
+```txt
+employeeId,firstName,lastName,email,username,phoneNumber,department,jobTitle,managerEmail,employmentType,contractDuration,status,startDate,location,country,state,streetAddress
+```
+
 ## REST API Examples
 
 List employees:
@@ -101,13 +116,18 @@ curl -X POST http://localhost:3000/api/employees \
     "lastName": "Taylor",
     "email": "jordan.taylor@example.com",
     "username": "jordan.taylor",
+    "phoneNumber": "+1 555 0104",
     "department": "Security",
     "jobTitle": "Security Engineer",
     "managerEmail": "manager@example.com",
     "employmentType": "FULL_TIME",
+    "contractDuration": "",
     "status": "ACTIVE",
     "startDate": "2026-02-15",
-    "location": "Remote"
+    "location": "Remote",
+    "country": "United States",
+    "state": "Illinois",
+    "streetAddress": ""
   }'
 ```
 
@@ -118,6 +138,14 @@ List SCIM users:
 ```bash
 curl \
   -H "Authorization: Bearer dev-scim-token" \
+  http://localhost:3000/api/scim/v2/Users
+```
+
+Or with static basic credentials:
+
+```bash
+curl \
+  -u scim:scim-secret \
   http://localhost:3000/api/scim/v2/Users
 ```
 

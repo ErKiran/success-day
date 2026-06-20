@@ -5,13 +5,18 @@
     "lastName": "Morgan",
     "email": "alex.morgan@example.com",
     "username": "alex.morgan",
+    "phoneNumber": "+1 555 0101",
     "department": "Finance",
     "jobTitle": "Finance Analyst",
     "managerEmail": "manager@example.com",
     "employmentType": "FULL_TIME",
+    "contractDuration": "",
     "status": "ACTIVE",
     "startDate": "2026-01-15",
-    "location": "Sioux Falls"
+    "location": "Sioux Falls Office",
+    "country": "United States",
+    "state": "South Dakota",
+    "streetAddress": "100 Main St"
   },
   {
     "employeeId": "E1002",
@@ -19,13 +24,18 @@
     "lastName": "Shah",
     "email": "priya.shah@example.com",
     "username": "priya.shah",
-    "department": "IT",
+    "phoneNumber": "+1 555 0102",
+    "department": "Information Technology",
     "jobTitle": "IAM Engineer",
     "managerEmail": "manager@example.com",
     "employmentType": "FULL_TIME",
+    "contractDuration": "",
     "status": "ACTIVE",
     "startDate": "2026-01-20",
-    "location": "Remote"
+    "location": "Remote",
+    "country": "United States",
+    "state": "Illinois",
+    "streetAddress": ""
   },
   {
     "employeeId": "E1003",
@@ -33,12 +43,17 @@
     "lastName": "Lee",
     "email": "sam.lee@example.com",
     "username": "sam.lee",
-    "department": "HR",
+    "phoneNumber": "+1 555 0103",
+    "department": "People",
     "jobTitle": "HR Generalist",
     "managerEmail": "manager@example.com",
     "employmentType": "FULL_TIME",
+    "contractDuration": "",
     "status": "ACTIVE",
     "startDate": "2026-02-01",
-    "location": "Chicago"
+    "location": "Chicago HQ",
+    "country": "United States",
+    "state": "Illinois",
+    "streetAddress": "200 Lake St"
   }
 ]

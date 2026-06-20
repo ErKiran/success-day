@@ -14,13 +14,18 @@ model Employee {
   lastName       String
   email          String   @unique
   username       String   @unique
+  phoneNumber    String?
   department     String
   jobTitle       String
   managerEmail   String?
   employmentType String
+  contractDuration String?
   status         String
   startDate      DateTime
   location       String?
+  country        String?
+  state          String?
+  streetAddress  String?
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
 }

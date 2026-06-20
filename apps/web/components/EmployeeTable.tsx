@@ -17,8 +17,8 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
             <th>Last Name</th>
             <th>Email</th>
             <th>Username</th>
-            <th>Department</th>
-            <th>Job Title</th>
+            <th>Role</th>
+            <th>Contact</th>
             <th>Employment Type</th>
             <th>Status</th>
             <th>Start Date</th>
@@ -32,14 +32,28 @@ export default function EmployeeTable({ employees }: { employees: Employee[] }) 
               <td>{employee.employeeId}</td>
               <td>{employee.firstName}</td>
               <td>{employee.lastName}</td>
-              <td>{employee.email}</td>
+              <td>
+                <div>{employee.email}</div>
+                <div className="muted">{employee.phoneNumber ?? ""}</div>
+              </td>
               <td>{employee.username}</td>
-              <td>{employee.department}</td>
-              <td>{employee.jobTitle}</td>
+              <td>
+                <div>{employee.jobTitle}</div>
+                <div className="muted">{employee.department}</div>
+              </td>
+              <td>
+                <div>{employee.phoneNumber ?? ""}</div>
+                <div className="muted">{employee.managerEmail ?? ""}</div>
+              </td>
               <td>{employee.employmentType}</td>
-              <td>{employee.status}</td>
+              <td>
+                <span className={`status-pill ${employee.status.toLowerCase()}`}>{employee.status}</span>
+              </td>
               <td>{dateInputValue(employee.startDate)}</td>
-              <td>{employee.location ?? ""}</td>
+              <td>
+                <div>{employee.location ?? ""}</div>
+                <div className="muted">{[employee.country, employee.state].filter(Boolean).join(", ")}</div>
+              </td>
               <td>
                 <Link className="button secondary" href={`/employees/${employee.id}/edit`}>
                   Edit
