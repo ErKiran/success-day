@@ -1,0 +1,4 @@
+employeeId,firstName,lastName,email,username,department,jobTitle,managerEmail,employmentType,status,startDate,location
+E1001,Alex,Morgan,alex.morgan@example.com,alex.morgan,Finance,Finance Analyst,manager@example.com,FULL_TIME,ACTIVE,2026-01-15,Sioux Falls
+E1002,Priya,Shah,priya.shah@example.com,priya.shah,IT,IAM Engineer,manager@example.com,FULL_TIME,ACTIVE,2026-01-20,Remote
+E1003,Sam,Lee,sam.lee@example.com,sam.lee,HR,HR Generalist,manager@example.com,FULL_TIME,ACTIVE,2026-02-01,Chicago

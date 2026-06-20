@@ -1,0 +1,54 @@
+{
+  "realm": "success-day",
+  "enabled": true,
+  "roles": {
+    "realm": [
+      {
+        "name": "success-day-admin",
+        "description": "Success Day application administrator"
+      }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "success-day-web",
+      "name": "Success Day Web",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "success-day-secret",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "http://localhost:3000/api/auth/callback/keycloak"
+      ],
+      "webOrigins": [
+        "http://localhost:3000"
+      ],
+      "attributes": {
+        "post.logout.redirect.uris": "http://localhost:3000"
+      }
+    }
+  ],
+  "users": [
+    {
+      "username": "admin@successday.local",
+      "email": "admin@successday.local",
+      "firstName": "Success",
+      "lastName": "Admin",
+      "enabled": true,
+      "emailVerified": true,
+      "credentials": [
+        {
+          "type": "password",
+          "value": "Admin123!",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "success-day-admin"
+      ]
+    }
+  ]
+}

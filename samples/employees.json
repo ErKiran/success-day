@@ -1,0 +1,44 @@
+[
+  {
+    "employeeId": "E1001",
+    "firstName": "Alex",
+    "lastName": "Morgan",
+    "email": "alex.morgan@example.com",
+    "username": "alex.morgan",
+    "department": "Finance",
+    "jobTitle": "Finance Analyst",
+    "managerEmail": "manager@example.com",
+    "employmentType": "FULL_TIME",
+    "status": "ACTIVE",
+    "startDate": "2026-01-15",
+    "location": "Sioux Falls"
+  },
+  {
+    "employeeId": "E1002",
+    "firstName": "Priya",
+    "lastName": "Shah",
+    "email": "priya.shah@example.com",
+    "username": "priya.shah",
+    "department": "IT",
+    "jobTitle": "IAM Engineer",
+    "managerEmail": "manager@example.com",
+    "employmentType": "FULL_TIME",
+    "status": "ACTIVE",
+    "startDate": "2026-01-20",
+    "location": "Remote"
+  },
+  {
+    "employeeId": "E1003",
+    "firstName": "Sam",
+    "lastName": "Lee",
+    "email": "sam.lee@example.com",
+    "username": "sam.lee",
+    "department": "HR",
+    "jobTitle": "HR Generalist",
+    "managerEmail": "manager@example.com",
+    "employmentType": "FULL_TIME",
+    "status": "ACTIVE",
+    "startDate": "2026-02-01",
+    "location": "Chicago"
+  }
+]

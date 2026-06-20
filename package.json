@@ -1,0 +1,7 @@
+{
+  "name": "success-day",
+  "private": true,
+  "scripts": {
+    "start": "docker compose up --build"
+  }
+}
