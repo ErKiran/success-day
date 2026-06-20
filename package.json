@@ -3,5 +3,8 @@
   "private": true,
   "scripts": {
     "start": "docker compose up --build"
+  },
+  "dependencies": {
+    "swagger-ui-react": "^5.32.6"
   }
 }

@@ -1,4 +1,5 @@
 import { getAuthSession } from "@/lib/auth";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import LoginButton from "./login-button";
 
@@ -10,12 +11,40 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="login">
-      <section className="panel">
-        <p className="brand">Success Day</p>
-        <h1>HRIS for Hustler</h1>
-        <p className="muted">A clean, modern HR source for IAM and IGA labs.</p>
-        <LoginButton />
+    <main className="login-shell hero-login-shell">
+      <section className="hero-login">
+        <header className="hero-nav">
+          <div>
+            <p className="hero-brand">Success Day</p>
+            <p className="hero-tagline">HRIS for Hustler</p>
+          </div>
+
+          <nav className="hero-nav-actions" aria-label="Primary">
+            <Link className="button secondary hero-nav-link" href="/api-docs">
+              Docs
+            </Link>
+            <LoginButton />
+          </nav>
+        </header>
+
+        <img
+          className="hero-login-image"
+          src="https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1800&q=80"
+          alt="Employees working around an office table"
+        />
+
+        <div className="hero-login-overlay" />
+
+        <div className="hero-login-content panel">
+          <h1>HRIS for Hustler</h1>
+          <p className="muted">Employee records, tables, and a clean login flow for the company.</p>
+          <div className="hero-login-actions">
+            <LoginButton />
+            <Link className="button secondary" href="/api-docs">
+              Docs
+            </Link>
+          </div>
+        </div>
       </section>
     </main>
   );
