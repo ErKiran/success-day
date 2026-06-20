@@ -26,6 +26,12 @@ export async function GET() {
       "/api/employees/import": {
         post: { summary: "Import employees from CSV or JSON", responses: { "200": { description: "Import result" } } }
       },
+      "/api/openapi": {
+        get: { summary: "Get OpenAPI document", responses: { "200": { description: "OpenAPI JSON" } } }
+      },
+      "/api/postman": {
+        get: { summary: "Get Postman collection", responses: { "200": { description: "Postman collection JSON" } } }
+      },
       "/api/scim/v2/Users": {
         get: { summary: "List SCIM users", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM users" } } },
         post: { summary: "Create SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "201": { description: "SCIM user" } } }
@@ -35,6 +41,27 @@ export async function GET() {
         put: { summary: "Replace SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } },
         patch: { summary: "Patch SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } },
         delete: { summary: "Terminate SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } }
+      },
+      "/api/scim/v2/ServiceProviderConfig": {
+        get: {
+          summary: "Get SCIM service provider config",
+          security: [{ scimBearer: [] }, { scimBasic: [] }],
+          responses: { "200": { description: "SCIM service provider config" } }
+        }
+      },
+      "/api/scim/v2/Schemas": {
+        get: {
+          summary: "List SCIM schemas",
+          security: [{ scimBearer: [] }, { scimBasic: [] }],
+          responses: { "200": { description: "SCIM schemas" } }
+        }
+      },
+      "/api/scim/v2/ResourceTypes": {
+        get: {
+          summary: "List SCIM resource types",
+          security: [{ scimBearer: [] }, { scimBasic: [] }],
+          responses: { "200": { description: "SCIM resource types" } }
+        }
       }
     }
   });

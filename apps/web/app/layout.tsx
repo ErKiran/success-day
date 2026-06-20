@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import "swagger-ui-react/swagger-ui.css";
 import "./globals.css";
 
 export const metadata: Metadata = {
