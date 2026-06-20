@@ -20,8 +20,8 @@ services:
       - success_day_data:/app/data
       - ./samples:/app/samples:ro
     depends_on:
-      keycloak-bootstrap:
-        condition: service_completed_successfully
+      keycloak:
+        condition: service_started
       keycloak-db:
         condition: service_healthy
     restart: unless-stopped
@@ -54,15 +54,16 @@ services:
 
   keycloak-bootstrap:
     image: quay.io/keycloak/keycloak:latest
-    container_name: success-day-keycloak-bootstrap
     entrypoint:
       - /bin/sh
-      - /opt/keycloak/bootstrap/bootstrap-developer.sh
+      - /opt/keycloak/bootstrap/bootstrap-keycloak.sh
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
     volumes:
-      - ./infra/keycloak/bootstrap-developer.sh:/opt/keycloak/bootstrap/bootstrap-developer.sh:ro
+      - ./infra/keycloak/bootstrap-keycloak.sh:/opt/keycloak/bootstrap/bootstrap-keycloak.sh:ro
+      - ./infra/keycloak/bootstrap-roles.tsv:/opt/keycloak/bootstrap/roles.tsv:ro
+      - ./infra/keycloak/bootstrap-users.tsv:/opt/keycloak/bootstrap/users.tsv:ro
     depends_on:
       keycloak:
         condition: service_started

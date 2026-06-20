@@ -1,0 +1,3 @@
+# username	email	firstName	lastName	password	roles
+admin@successday.local	admin@successday.local	Success	Admin	Admin123!	success-day-admin
+developer@successday.local	developer@successday.local	Success	Developer	Developer123!	success-day-developer

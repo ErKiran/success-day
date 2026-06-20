@@ -14,10 +14,12 @@ Run:
 ./start.sh
 ```
 
-Or:
+If you prefer Docker Compose directly, run the same startup sequence:
 
 ```bash
-docker compose up --build
+docker compose up -d keycloak-db keycloak
+docker compose run --rm keycloak-bootstrap
+docker compose up --build success-day-web
 ```
 
 If startup says Docker is not running, open Docker Desktop first and wait until the engine is ready.
@@ -71,6 +73,15 @@ Permissions: developer:sso, developer:saml
 ```
 
 Startup also runs an idempotent Keycloak bootstrap step, so existing lab volumes get this developer role and user automatically.
+
+To add more bootstrap roles or users later, update:
+
+```txt
+infra/keycloak/bootstrap-roles.tsv
+infra/keycloak/bootstrap-users.tsv
+```
+
+Then run `./start.sh` again. The sync step is repeatable; it creates missing roles/users and updates existing bootstrap users.
 
 SCIM API:
 
