@@ -70,7 +70,7 @@ Password: Developer123!
 Permissions: developer:sso, developer:saml
 ```
 
-If you already started this lab before the developer role was added, Keycloak may keep the old realm from the Docker volume. Recreate the Keycloak volume or add the `success-day-developer` role and developer user manually in the Keycloak admin console.
+Startup also runs an idempotent Keycloak bootstrap step, so existing lab volumes get this developer role and user automatically.
 
 SCIM API:
 
