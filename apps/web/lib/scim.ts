@@ -1,9 +1,15 @@
-import type { Employee } from "@prisma/client";
+import type { Employee, ScimGroup, ScimGroupMember } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
-const coreUserSchema = "urn:ietf:params:scim:schemas:core:2.0:User";
-const enterpriseUserSchema = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User";
-const listResponseSchema = "urn:ietf:params:scim:api:messages:2.0:ListResponse";
+export const coreUserSchema = "urn:ietf:params:scim:schemas:core:2.0:User";
+export const coreGroupSchema = "urn:ietf:params:scim:schemas:core:2.0:Group";
+export const enterpriseUserSchema = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User";
+export const listResponseSchema = "urn:ietf:params:scim:api:messages:2.0:ListResponse";
+export const errorSchema = "urn:ietf:params:scim:api:messages:2.0:Error";
+
+type ScimGroupWithMembers = ScimGroup & {
+  members: Array<ScimGroupMember & { employee: Employee }>;
+};
 
 export function isScimAuthorized(request: Request) {
   const authorization = request.headers.get("authorization") ?? "";
@@ -16,7 +22,26 @@ export function isScimAuthorized(request: Request) {
 }
 
 export function unauthorizedScimResponse() {
-  return Response.json({ error: "Unauthorized" }, { status: 401 });
+  return scimErrorResponse(401, "Unauthorized");
+}
+
+export function scimJson(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/scim+json" }
+  });
+}
+
+export function scimErrorResponse(status: number, detail: string, scimType?: string) {
+  return scimJson(
+    {
+      schemas: [errorSchema],
+      status: String(status),
+      ...(scimType ? { scimType } : {}),
+      detail
+    },
+    status
+  );
 }
 
 export function employeeToScimUser(employee: Employee, request: Request) {
@@ -77,6 +102,27 @@ export function scimListResponse(resources: unknown[], totalResults: number, sta
   };
 }
 
+export function scimGroupToResource(group: ScimGroupWithMembers, request: Request) {
+  const location = new URL(`/api/scim/v2/Groups/${group.id}`, request.url).toString();
+
+  return {
+    schemas: [coreGroupSchema],
+    id: group.id,
+    displayName: group.displayName,
+    members: group.members.map(({ employee }) => ({
+      value: employee.id,
+      display: `${employee.firstName} ${employee.lastName}`,
+      $ref: new URL(`/api/scim/v2/Users/${employee.id}`, request.url).toString()
+    })),
+    meta: {
+      resourceType: "Group",
+      created: group.createdAt.toISOString(),
+      lastModified: group.updatedAt.toISOString(),
+      location
+    }
+  };
+}
+
 export function scimToEmployeeInput(body: any) {
   const enterprise = body?.[enterpriseUserSchema] ?? {};
   const email = Array.isArray(body?.emails) ? body.emails[0]?.value : undefined;
@@ -126,6 +172,114 @@ export async function employeesForScimFilter(filter: string | null) {
   return prisma.employee.findMany({ where });
 }
 
+export async function groupsForScimFilter(filter: string | null) {
+  const include = { members: { include: { employee: true }, orderBy: { createdAt: "asc" as const } } };
+
+  if (!filter) {
+    return prisma.scimGroup.findMany({ include, orderBy: { displayName: "asc" } });
+  }
+
+  const match = filter.match(/^displayName\s+eq\s+"([^"]+)"$/i);
+
+  if (!match) {
+    return [];
+  }
+
+  return prisma.scimGroup.findMany({ where: { displayName: match[1] }, include });
+}
+
+export function extractScimMemberIds(value: unknown) {
+  if (!value) {
+    return [];
+  }
+
+  const members: unknown[] = Array.isArray(value) ? value : Array.isArray((value as any).members) ? (value as any).members : [value];
+  return members.map((member: unknown) => String((member as any)?.value ?? member)).filter(Boolean);
+}
+
+export async function setScimGroupMembers(groupId: string, memberIds: string[]) {
+  const uniqueMemberIds = Array.from(new Set(memberIds));
+  const existingEmployees = await prisma.employee.findMany({
+    where: { id: { in: uniqueMemberIds } },
+    select: { id: true }
+  });
+  const validMemberIds = new Set(existingEmployees.map((employee) => employee.id));
+
+  await prisma.scimGroupMember.deleteMany({ where: { groupId } });
+
+  if (validMemberIds.size === 0) {
+    return;
+  }
+
+  await prisma.scimGroupMember.createMany({
+    data: Array.from(validMemberIds).map((employeeId) => ({ groupId, employeeId }))
+  });
+}
+
+export async function addScimGroupMembers(groupId: string, memberIds: string[]) {
+  const uniqueMemberIds = Array.from(new Set(memberIds));
+  const existingEmployees = await prisma.employee.findMany({
+    where: { id: { in: uniqueMemberIds } },
+    select: { id: true }
+  });
+
+  if (existingEmployees.length === 0) {
+    return;
+  }
+
+  const existingMemberships = await prisma.scimGroupMember.findMany({
+    where: { groupId, employeeId: { in: existingEmployees.map((employee) => employee.id) } },
+    select: { employeeId: true }
+  });
+  const existingMemberIds = new Set(existingMemberships.map((membership) => membership.employeeId));
+  const membershipsToCreate = existingEmployees
+    .filter((employee) => !existingMemberIds.has(employee.id))
+    .map((employee) => ({ groupId, employeeId: employee.id }));
+
+  if (membershipsToCreate.length === 0) {
+    return;
+  }
+
+  await prisma.scimGroupMember.createMany({
+    data: membershipsToCreate
+  });
+}
+
+export async function removeScimGroupMembers(groupId: string, memberIds: string[]) {
+  await prisma.scimGroupMember.deleteMany({
+    where: { groupId, employeeId: { in: Array.from(new Set(memberIds)) } }
+  });
+}
+
+export async function applyScimGroupPatch(group: ScimGroup, body: any) {
+  const operations = Array.isArray(body?.Operations) ? body.Operations : [];
+
+  for (const operation of operations) {
+    const op = String(operation.op ?? "replace").toLowerCase();
+    const path = String(operation.path ?? "").toLowerCase();
+    const value = operation.value;
+
+    if (path === "displayname" || (!path && value?.displayName)) {
+      await prisma.scimGroup.update({
+        where: { id: group.id },
+        data: { displayName: String(value?.displayName ?? value) }
+      });
+    }
+
+    if (path === "members" || (!path && value?.members)) {
+      const memberIds = extractScimMemberIds(value?.members ?? value);
+
+      if (op === "remove") {
+        await removeScimGroupMembers(group.id, memberIds);
+      } else if (op === "add") {
+        await addScimGroupMembers(group.id, memberIds);
+      } else {
+        await setScimGroupMembers(group.id, memberIds);
+      }
+    }
+  }
+}
+
 export function applyScimPatch(employee: Employee, body: any) {
   const data: Record<string, unknown> = {};
   const operations = Array.isArray(body?.Operations) ? body.Operations : [];
@@ -164,3 +318,55 @@ export function applyScimPatch(employee: Employee, body: any) {
     status: data.status ?? employee.status
   };
 }
+
+export const scimSchemas = [
+  {
+    id: coreUserSchema,
+    name: "User",
+    description: "User Account",
+    attributes: [
+      { name: "userName", type: "string", multiValued: false, required: true, mutability: "readWrite", returned: "default", uniqueness: "server" },
+      { name: "name", type: "complex", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "displayName", type: "string", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "emails", type: "complex", multiValued: true, required: true, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "active", type: "boolean", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "title", type: "string", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" }
+    ]
+  },
+  {
+    id: enterpriseUserSchema,
+    name: "EnterpriseUser",
+    description: "Enterprise User",
+    attributes: [
+      { name: "department", type: "string", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "costCenter", type: "string", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" },
+      { name: "manager", type: "complex", multiValued: false, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" }
+    ]
+  },
+  {
+    id: coreGroupSchema,
+    name: "Group",
+    description: "Group",
+    attributes: [
+      { name: "displayName", type: "string", multiValued: false, required: true, mutability: "readWrite", returned: "default", uniqueness: "server" },
+      { name: "members", type: "complex", multiValued: true, required: false, mutability: "readWrite", returned: "default", uniqueness: "none" }
+    ]
+  }
+];
+
+export const scimResourceTypes = [
+  {
+    id: "User",
+    name: "User",
+    endpoint: "/Users",
+    schema: coreUserSchema,
+    schemaExtensions: [{ schema: enterpriseUserSchema, required: false }]
+  },
+  {
+    id: "Group",
+    name: "Group",
+    endpoint: "/Groups",
+    schema: coreGroupSchema,
+    schemaExtensions: []
+  }
+];

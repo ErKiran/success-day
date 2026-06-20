@@ -1,6 +1,8 @@
 import type { NextAuthOptions } from "next-auth";
 import KeycloakProvider from "next-auth/providers/keycloak";
 import { getServerSession } from "next-auth";
+import { cookies } from "next/headers";
+import { SignJWT, jwtVerify } from "jose";
 
 const publicKeycloakIssuer = process.env.KEYCLOAK_ISSUER ?? "http://localhost:8080/realms/success-day";
 const internalKeycloakIssuer = process.env.KEYCLOAK_INTERNAL_ISSUER ?? publicKeycloakIssuer;
@@ -16,6 +18,19 @@ type KeycloakAccessToken = {
   };
 };
 
+export function keycloakLogoutUrl(idToken?: string, callbackUrl = "/login") {
+  const appBaseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+  const postLogoutRedirectUri = new URL(callbackUrl, appBaseUrl).toString();
+  const url = new URL(`${publicKeycloakIssuer}/protocol/openid-connect/logout`);
+  url.searchParams.set("post_logout_redirect_uri", postLogoutRedirectUri);
+
+  if (idToken) {
+    url.searchParams.set("id_token_hint", idToken);
+  }
+
+  return url.toString();
+}
+
 function decodeAccessToken(token?: string): KeycloakAccessToken {
   if (!token) {
     return {};
@@ -30,8 +45,68 @@ function decodeAccessToken(token?: string): KeycloakAccessToken {
   }
 }
 
-function permissionsForRoles(roles: string[]) {
+export function permissionsForRoles(roles: string[]) {
   return Array.from(new Set(roles.flatMap((role) => rolePermissions[role] ?? [])));
+}
+
+type SamlSessionPayload = {
+  name?: string | null;
+  email?: string | null;
+  roles: string[];
+};
+
+function samlSessionSecret() {
+  return new TextEncoder().encode(process.env.NEXTAUTH_SECRET ?? "change-me");
+}
+
+export async function createSamlSessionCookie(payload: SamlSessionPayload) {
+  const token = await new SignJWT({
+    name: payload.name ?? undefined,
+    email: payload.email ?? undefined,
+    roles: payload.roles,
+    permissions: permissionsForRoles(payload.roles),
+    authMethod: "saml"
+  })
+    .setProtectedHeader({ alg: "HS256" })
+    .setIssuedAt()
+    .setExpirationTime("8h")
+    .sign(samlSessionSecret());
+
+  const cookieStore = await cookies();
+  cookieStore.set("success-day-saml-session", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+    maxAge: 60 * 60 * 8
+  });
+}
+
+async function getSamlSession() {
+  const token = (await cookies()).get("success-day-saml-session")?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const { payload } = await jwtVerify(token, samlSessionSecret());
+    const roles = Array.isArray(payload.roles) ? payload.roles.filter((role): role is string => typeof role === "string") : [];
+    const permissions = Array.isArray(payload.permissions) ? payload.permissions.filter((permission): permission is string => typeof permission === "string") : [];
+
+    return {
+      user: {
+        name: typeof payload.name === "string" ? payload.name : null,
+        email: typeof payload.email === "string" ? payload.email : null,
+        image: null,
+        roles,
+        permissions
+      },
+      expires: new Date(Date.now() + 60 * 60 * 8 * 1000).toISOString()
+    };
+  } catch {
+    return null;
+  }
 }
 
 export const authOptions: NextAuthOptions = {
@@ -61,6 +136,10 @@ export const authOptions: NextAuthOptions = {
         token.permissions = permissionsForRoles(roles);
       }
 
+      if (account?.id_token) {
+        token.idToken = account.id_token;
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -75,7 +154,15 @@ export const authOptions: NextAuthOptions = {
 
       return session;
     },
-    async redirect({ baseUrl }) {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) {
+        return `${baseUrl}${url}`;
+      }
+
+      if (url.startsWith(baseUrl)) {
+        return url;
+      }
+
       return `${baseUrl}/dashboard`;
     }
   }
@@ -86,7 +173,7 @@ export function getAuthSession() {
 }
 
 export async function requireSession() {
-  const session = await getAuthSession();
+  const session = (await getSamlSession()) ?? (await getAuthSession());
 
   if (!session) {
     return null;
@@ -95,7 +182,7 @@ export async function requireSession() {
   return session;
 }
 
-export function hasPermission(session: Awaited<ReturnType<typeof getAuthSession>> | null, permission: string) {
+export function hasPermission(session: { user?: { permissions?: string[] } } | null, permission: string) {
   return Boolean(session?.user?.permissions?.includes(permission));
 }
 

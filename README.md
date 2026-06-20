@@ -126,6 +126,16 @@ Entity ID: http://localhost:3000/api/saml/{configurationId}/metadata
 ACS URL: http://localhost:3000/api/saml/{configurationId}/acs
 ```
 
+The ACS endpoint accepts SAML HTTP-POST responses and validates the response or assertion signature against the uploaded IdP certificate. It also checks issuer, audience, and assertion time validity before returning the verified profile.
+
+The app can also initiate SAML login through the currently enabled configuration:
+
+```txt
+http://localhost:3000/api/saml/login
+```
+
+After assertion validation, Success Day verifies the SAML user exists in Keycloak, loads the user's Keycloak realm roles, creates a signed app session, and redirects to the role-specific dashboard.
+
 The import supports these columns:
 
 ```txt

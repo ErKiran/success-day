@@ -13,6 +13,8 @@ services:
       - KEYCLOAK_INTERNAL_ISSUER=http://keycloak:8080/realms/success-day
       - KEYCLOAK_CLIENT_ID=success-day-web
       - KEYCLOAK_CLIENT_SECRET=success-day-secret
+      - KEYCLOAK_ADMIN_USERNAME=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
       - SCIM_BEARER_TOKEN=dev-scim-token
       - SCIM_BASIC_USERNAME=scim
       - SCIM_BASIC_PASSWORD=scim-secret
@@ -60,6 +62,9 @@ services:
     environment:
       - KEYCLOAK_ADMIN=admin
       - KEYCLOAK_ADMIN_PASSWORD=admin
+      - KEYCLOAK_CLIENT_ID=success-day-web
+      - KEYCLOAK_CLIENT_SECRET=success-day-secret
+      - SUCCESS_DAY_APP_BASE_URL=http://localhost:3000
     volumes:
       - ./infra/keycloak/bootstrap-keycloak.sh:/opt/keycloak/bootstrap/bootstrap-keycloak.sh:ro
       - ./infra/keycloak/bootstrap-roles.tsv:/opt/keycloak/bootstrap/roles.tsv:ro

@@ -1,4 +1,5 @@
 import EmployeeForm from "@/components/EmployeeForm";
+import LogoutButton from "@/components/LogoutButton";
 import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { dateInputValue } from "@/lib/validators";
@@ -25,6 +26,9 @@ export default async function EditEmployeePage({ params }: { params: Promise<{ i
           <div>
             <div className="brand">Success Day</div>
             <p className="slogan">HRIS for Hustler</p>
+          </div>
+          <div className="actions">
+            <LogoutButton />
           </div>
         </div>
         <section className="panel">

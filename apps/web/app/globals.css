@@ -94,6 +94,10 @@ a {
   margin-bottom: 24px;
 }
 
+.topbar-actions-only {
+  margin-bottom: 14px;
+}
+
 .brand {
   font-size: 28px;
   font-weight: 700;
@@ -506,42 +510,11 @@ th {
   align-items: start;
   display: grid;
   gap: 24px;
-  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
 }
 
 .developer-dashboard > .developer-configurations {
-  grid-column: 2;
-}
-
-.developer-sidebar {
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--accent) 12%, transparent), transparent),
-    var(--soft-panel);
-  position: sticky;
-  top: 24px;
-}
-
-.developer-sidebar h1 {
-  font-size: clamp(30px, 4vw, 48px);
-  line-height: 1;
-  margin-bottom: 14px;
-}
-
-.permission-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 20px;
-}
-
-.permission-list span {
-  background: color-mix(in srgb, var(--accent) 14%, transparent);
-  border: 1px solid color-mix(in srgb, var(--accent) 24%, var(--line));
-  border-radius: 999px;
-  color: var(--accent-dark);
-  font-size: 12px;
-  font-weight: 800;
-  padding: 7px 10px;
+  grid-column: 1;
 }
 
 .developer-form {
@@ -603,41 +576,65 @@ th {
 
 .configuration-list {
   display: grid;
-  gap: 14px;
+  gap: 8px;
 }
 
 .configuration-card {
+  align-items: center;
   background: var(--soft-panel-strong);
   border: 1px solid var(--line);
   border-radius: 8px;
   display: grid;
-  gap: 16px;
-  grid-template-columns: minmax(0, 1fr) auto;
-  padding: 16px;
+  gap: 12px;
+  grid-template-columns: minmax(180px, 1.2fr) minmax(160px, 1fr) minmax(220px, 1.4fr) minmax(220px, 1.4fr) auto;
+  padding: 12px;
 }
 
 .configuration-card h3 {
-  font-size: 18px;
+  font-size: 15px;
   margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.configuration-card p {
-  margin: 6px 0 0;
+.configuration-name {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  min-width: 0;
 }
 
-.configuration-card-heading,
+.configuration-field {
+  min-width: 0;
+}
+
+.configuration-field span {
+  color: var(--muted);
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.configuration-field code {
+  background: transparent;
+  color: var(--ink);
+  display: block;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .configuration-actions {
   align-items: center;
   display: flex;
   gap: 8px;
 }
 
-.configuration-card-heading {
-  justify-content: space-between;
-}
-
 .configuration-actions {
-  align-self: start;
   flex-wrap: wrap;
   justify-content: flex-end;
 }
@@ -1064,10 +1061,6 @@ pre {
 
   .developer-dashboard > .developer-configurations {
     grid-column: auto;
-  }
-
-  .developer-sidebar {
-    position: static;
   }
 
   .employee-form-aside {

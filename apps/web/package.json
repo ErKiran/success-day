@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
+    "@node-saml/node-saml": "^5.1.0",
     "@prisma/client": "^5.22.0",
     "next": "16.2.9",
     "next-auth": "^4.24.14",

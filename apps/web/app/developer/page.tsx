@@ -1,4 +1,5 @@
 import DeveloperSamlDashboard from "@/components/DeveloperSamlDashboard";
+import LogoutButton from "@/components/LogoutButton";
 import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { redirect } from "next/navigation";
@@ -17,10 +18,10 @@ export default async function DeveloperPage() {
   return (
     <main className="page">
       <div className="shell">
-        <div className="topbar">
-          <div>
-            <div className="brand">Success Day Developer</div>
-            <p className="slogan">SSO configuration workspace</p>
+        <div className="topbar topbar-actions-only">
+          <div />
+          <div className="actions">
+            <LogoutButton />
           </div>
         </div>
         <DeveloperSamlDashboard

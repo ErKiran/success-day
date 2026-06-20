@@ -6,6 +6,9 @@ REALM="${SUCCESS_DAY_REALM:-success-day}"
 SERVER="${KEYCLOAK_SERVER:-http://keycloak:8080}"
 ROLES_FILE="${KEYCLOAK_BOOTSTRAP_ROLES:-/opt/keycloak/bootstrap/roles.tsv}"
 USERS_FILE="${KEYCLOAK_BOOTSTRAP_USERS:-/opt/keycloak/bootstrap/users.tsv}"
+CLIENT_ID="${KEYCLOAK_CLIENT_ID:-success-day-web}"
+CLIENT_SECRET="${KEYCLOAK_CLIENT_SECRET:-success-day-secret}"
+APP_BASE_URL="${SUCCESS_DAY_APP_BASE_URL:-http://localhost:3000}"
 
 echo "Syncing Success Day Keycloak bootstrap data..."
 
@@ -80,6 +83,31 @@ sync_user() {
   IFS="$old_ifs"
 }
 
+sync_client() {
+  client_uuid="$("$KC" get clients -r "$REALM" -q "clientId=${CLIENT_ID}" --fields id | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p' | head -n 1)"
+
+  if [ -z "$client_uuid" ]; then
+    "$KC" create clients -r "$REALM" \
+      -s "clientId=${CLIENT_ID}" \
+      -s "name=Success Day Web" \
+      -s "enabled=true" \
+      -s "protocol=openid-connect" \
+      -s "publicClient=false" \
+      -s "secret=${CLIENT_SECRET}" \
+      -s "standardFlowEnabled=true" \
+      -s "directAccessGrantsEnabled=true" \
+      -s "serviceAccountsEnabled=false" >/dev/null
+
+    client_uuid="$("$KC" get clients -r "$REALM" -q "clientId=${CLIENT_ID}" --fields id | sed -n 's/.*"id" *: *"\([^"]*\)".*/\1/p' | head -n 1)"
+  fi
+
+  "$KC" update "clients/${client_uuid}" -r "$REALM" \
+    -s "secret=${CLIENT_SECRET}" \
+    -s "redirectUris=[\"${APP_BASE_URL}/api/auth/callback/keycloak\"]" \
+    -s "webOrigins=[\"${APP_BASE_URL}\"]" \
+    -s "attributes={\"post.logout.redirect.uris\":\"${APP_BASE_URL}/*\"}" >/dev/null
+}
+
 if [ -f "$ROLES_FILE" ]; then
   while IFS="$(printf '\t')" read -r role_name role_description _rest; do
     case "$role_name" in
@@ -99,5 +127,8 @@ if [ -f "$USERS_FILE" ]; then
     echo "User ready: ${username}"
   done < "$USERS_FILE"
 fi
+
+sync_client
+echo "Client ready: ${CLIENT_ID}"
 
 echo "Keycloak bootstrap sync complete."

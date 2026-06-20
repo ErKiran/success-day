@@ -8,37 +8,62 @@ datasource db {
 }
 
 model Employee {
-  id             String   @id @default(cuid())
-  employeeId     String   @unique
-  firstName      String
-  lastName       String
-  email          String   @unique
-  username       String   @unique
-  phoneNumber    String?
-  department     String
-  jobTitle       String
-  managerEmail   String?
-  employmentType String
-  contractDuration String?
-  status         String
-  startDate      DateTime
-  location       String?
-  country        String?
-  state          String?
-  streetAddress  String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                   String            @id @default(cuid())
+  employeeId           String            @unique
+  firstName            String
+  lastName             String
+  email                String            @unique
+  username             String            @unique
+  phoneNumber          String?
+  department           String
+  jobTitle             String
+  managerEmail         String?
+  employmentType       String
+  contractDuration     String?
+  status               String
+  startDate            DateTime
+  location             String?
+  country              String?
+  state                String?
+  streetAddress        String?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+  scimGroupMemberships ScimGroupMember[]
 }
 
 model SamlSsoConfiguration {
-  id             String   @id @default(cuid())
-  name           String
-  idpEntityId    String
-  idpSsoUrl      String
-  idpSloUrl      String?
-  certificate    String
-  enabled        Boolean  @default(false)
-  createdBy      String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String   @id @default(cuid())
+  name              String
+  spEntityId        String?
+  idpEntityId       String
+  idpSsoUrl         String
+  idpSloUrl         String?
+  certificate       String
+  nameIdFormat      String   @default("urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress")
+  mapEmailClaim     String   @default("email")
+  mapFirstNameClaim String   @default("givenName")
+  mapLastNameClaim  String   @default("sn")
+  enabled           Boolean  @default(false)
+  createdBy         String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+}
+
+model ScimGroup {
+  id          String            @id @default(cuid())
+  displayName String            @unique
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  members     ScimGroupMember[]
+}
+
+model ScimGroupMember {
+  id         String    @id @default(cuid())
+  groupId    String
+  employeeId String
+  group      ScimGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  createdAt  DateTime  @default(now())
+
+  @@unique([groupId, employeeId])
 }

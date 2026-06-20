@@ -61,10 +61,15 @@ export function dateInputValue(value: Date | string) {
 
 export const samlSsoConfigurationSchema = z.object({
   name: z.string().trim().min(2, "Name is required"),
+  spEntityId: z.string().trim().optional().or(z.literal("")),
   idpEntityId: z.string().trim().min(2, "IdP entity ID is required"),
   idpSsoUrl: z.string().trim().url("A valid SSO URL is required"),
   idpSloUrl: z.string().trim().url("A valid SLO URL is required").optional().or(z.literal("")),
   certificate: z.string().trim().min(20, "Certificate is required"),
+  nameIdFormat: z.string().trim().min(1, "NameID format is required"),
+  mapEmailClaim: z.string().trim().min(1, "Email claim is required"),
+  mapFirstNameClaim: z.string().trim().min(1, "First name claim is required"),
+  mapLastNameClaim: z.string().trim().min(1, "Last name claim is required"),
   enabled: z.boolean().default(false)
 });
 
@@ -73,6 +78,7 @@ export type SamlSsoConfigurationInput = z.infer<typeof samlSsoConfigurationSchem
 export function normalizeSamlSsoConfigurationInput(input: SamlSsoConfigurationInput) {
   return {
     ...input,
+    spEntityId: input.spEntityId || null,
     idpSloUrl: input.idpSloUrl || null
   };
 }

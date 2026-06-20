@@ -1,4 +1,13 @@
-import { employeeToScimUser, employeesForScimFilter, isScimAuthorized, scimListResponse, scimToEmployeeInput, unauthorizedScimResponse } from "@/lib/scim";
+import {
+  employeeToScimUser,
+  employeesForScimFilter,
+  isScimAuthorized,
+  scimErrorResponse,
+  scimJson,
+  scimListResponse,
+  scimToEmployeeInput,
+  unauthorizedScimResponse
+} from "@/lib/scim";
 import { employeeCreateSchema, normalizeEmployeeInput } from "@/lib/validators";
 import { prisma } from "@/lib/prisma";
 
@@ -14,7 +23,7 @@ export async function GET(request: Request) {
   const page = employees.slice(startIndex - 1, startIndex - 1 + count);
   const resources = page.map((employee) => employeeToScimUser(employee, request));
 
-  return Response.json(scimListResponse(resources, employees.length, startIndex, count));
+  return scimJson(scimListResponse(resources, employees.length, startIndex, count));
 }
 
 export async function POST(request: Request) {
@@ -26,7 +35,7 @@ export async function POST(request: Request) {
   const parsed = employeeCreateSchema.safeParse(scimToEmployeeInput(body));
 
   if (!parsed.success) {
-    return Response.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return scimErrorResponse(400, "Invalid SCIM user payload", "invalidValue");
   }
 
   try {
@@ -34,8 +43,8 @@ export async function POST(request: Request) {
       data: normalizeEmployeeInput(parsed.data)
     });
 
-    return Response.json(employeeToScimUser(employee, request), { status: 201 });
+    return scimJson(employeeToScimUser(employee, request), 201);
   } catch {
-    return Response.json({ error: "Unique field conflict" }, { status: 409 });
+    return scimErrorResponse(409, "Unique field conflict", "uniqueness");
   }
 }

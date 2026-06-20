@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { employeeUpdateSchema, normalizeEmployeeInput } from "@/lib/validators";
-import { applyScimPatch, employeeToScimUser, isScimAuthorized, scimToEmployeeInput, unauthorizedScimResponse } from "@/lib/scim";
+import { applyScimPatch, employeeToScimUser, isScimAuthorized, scimErrorResponse, scimJson, scimToEmployeeInput, unauthorizedScimResponse } from "@/lib/scim";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -13,10 +13,10 @@ export async function GET(request: Request, { params }: RouteContext) {
   const employee = await prisma.employee.findUnique({ where: { id } });
 
   if (!employee) {
-    return Response.json({ error: "User not found" }, { status: 404 });
+    return scimErrorResponse(404, "User not found");
   }
 
-  return Response.json(employeeToScimUser(employee, request));
+  return scimJson(employeeToScimUser(employee, request));
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
@@ -29,7 +29,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
   const parsed = employeeUpdateSchema.safeParse(scimToEmployeeInput(body));
 
   if (!parsed.success) {
-    return Response.json({ errors: parsed.error.flatten().fieldErrors }, { status: 400 });
+    return scimErrorResponse(400, "Invalid SCIM user payload", "invalidValue");
   }
 
   try {
@@ -38,9 +38,9 @@ export async function PUT(request: Request, { params }: RouteContext) {
       data: normalizeEmployeeInput(parsed.data)
     });
 
-    return Response.json(employeeToScimUser(employee, request));
+    return scimJson(employeeToScimUser(employee, request));
   } catch {
-    return Response.json({ error: "User not found or unique field conflict" }, { status: 409 });
+    return scimErrorResponse(409, "User not found or unique field conflict", "uniqueness");
   }
 }
 
@@ -53,7 +53,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   const employee = await prisma.employee.findUnique({ where: { id } });
 
   if (!employee) {
-    return Response.json({ error: "User not found" }, { status: 404 });
+    return scimErrorResponse(404, "User not found");
   }
 
   const body = await request.json().catch(() => null);
@@ -62,7 +62,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
     data: applyScimPatch(employee, body)
   });
 
-  return Response.json(employeeToScimUser(updated, request));
+  return scimJson(employeeToScimUser(updated, request));
 }
 
 export async function DELETE(request: Request, { params }: RouteContext) {
@@ -77,8 +77,8 @@ export async function DELETE(request: Request, { params }: RouteContext) {
       data: { status: "TERMINATED" }
     });
 
-    return Response.json(employeeToScimUser(employee, request));
+    return scimJson(employeeToScimUser(employee, request));
   } catch {
-    return Response.json({ error: "User not found" }, { status: 404 });
+    return scimErrorResponse(404, "User not found");
   }
 }

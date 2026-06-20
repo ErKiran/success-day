@@ -1,11 +1,11 @@
-import { isScimAuthorized, unauthorizedScimResponse } from "@/lib/scim";
+import { isScimAuthorized, scimJson, unauthorizedScimResponse } from "@/lib/scim";
 
 export async function GET(request: Request) {
   if (!isScimAuthorized(request)) {
     return unauthorizedScimResponse();
   }
 
-  return Response.json({
+  return scimJson({
     schemas: ["urn:ietf:params:scim:schemas:core:2.0:ServiceProviderConfig"],
     patch: { supported: true },
     bulk: { supported: false },

@@ -1,13 +1,13 @@
-import { getAuthSession } from "@/lib/auth";
+import { requireSession } from "@/lib/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import LoginButton from "./login-button";
 
 export default async function LoginPage() {
-  const session = await getAuthSession();
+  const session = await requireSession();
 
   if (session) {
-    redirect("/employees");
+    redirect("/dashboard");
   }
 
   return (
@@ -23,6 +23,9 @@ export default async function LoginPage() {
             <Link className="button secondary hero-nav-link" href="/api-docs">
               Docs
             </Link>
+            <Link className="button secondary hero-nav-link" href="/api/saml/login">
+              SAML SSO
+            </Link>
             <LoginButton />
           </nav>
         </header>
@@ -37,9 +40,12 @@ export default async function LoginPage() {
 
         <div className="hero-login-content panel">
           <h1>HRIS for Hustler</h1>
-          <p className="muted">Employee records, tables, and a clean login flow for the company.</p>
+          <p className="muted">HRIS system for hustler. SSO, SCIM and RBAC supported Out of the Box </p>
           <div className="hero-login-actions">
             <LoginButton />
+            <Link className="button secondary" href="/api/saml/login">
+              SAML SSO
+            </Link>
             <Link className="button secondary" href="/api-docs">
               Docs
             </Link>

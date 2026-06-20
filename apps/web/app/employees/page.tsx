@@ -1,5 +1,6 @@
 import EmployeeTable from "@/components/EmployeeTable";
 import ImportEmployees from "@/components/ImportEmployees";
+import LogoutButton from "@/components/LogoutButton";
 import { requirePermission } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
@@ -31,6 +32,7 @@ export default async function EmployeesPage() {
             <Link className="button" href="/employees/new">
               Add Employee
             </Link>
+            <LogoutButton />
           </div>
         </div>
         <section className="metrics">

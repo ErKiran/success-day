@@ -6,10 +6,15 @@ import { useMemo, useState } from "react";
 type SamlConfiguration = {
   id: string;
   name: string;
+  spEntityId: string | null;
   idpEntityId: string;
   idpSsoUrl: string;
   idpSloUrl: string | null;
   certificate: string;
+  nameIdFormat: string;
+  mapEmailClaim: string;
+  mapFirstNameClaim: string;
+  mapLastNameClaim: string;
   enabled: boolean;
   createdAt: string;
   updatedAt: string;
@@ -18,10 +23,15 @@ type SamlConfiguration = {
 type FormState = {
   id?: string;
   name: string;
+  spEntityId: string;
   idpEntityId: string;
   idpSsoUrl: string;
   idpSloUrl: string;
   certificate: string;
+  nameIdFormat: string;
+  mapEmailClaim: string;
+  mapFirstNameClaim: string;
+  mapLastNameClaim: string;
   enabled: boolean;
 };
 
@@ -29,10 +39,15 @@ type Errors = Record<string, string[] | undefined>;
 
 const blankForm: FormState = {
   name: "",
+  spEntityId: "",
   idpEntityId: "",
   idpSsoUrl: "",
   idpSloUrl: "",
   certificate: "",
+  nameIdFormat: "urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress",
+  mapEmailClaim: "email",
+  mapFirstNameClaim: "givenName",
+  mapLastNameClaim: "sn",
   enabled: false
 };
 
@@ -60,10 +75,15 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
     setForm({
       id: configuration.id,
       name: configuration.name,
+      spEntityId: configuration.spEntityId ?? "",
       idpEntityId: configuration.idpEntityId,
       idpSsoUrl: configuration.idpSsoUrl,
       idpSloUrl: configuration.idpSloUrl ?? "",
       certificate: configuration.certificate,
+      nameIdFormat: configuration.nameIdFormat,
+      mapEmailClaim: configuration.mapEmailClaim,
+      mapFirstNameClaim: configuration.mapFirstNameClaim,
+      mapLastNameClaim: configuration.mapLastNameClaim,
       enabled: configuration.enabled
     });
     setErrors({});
@@ -81,10 +101,15 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: form.name,
+        spEntityId: form.spEntityId,
         idpEntityId: form.idpEntityId,
         idpSsoUrl: form.idpSsoUrl,
         idpSloUrl: form.idpSloUrl,
         certificate: form.certificate,
+        nameIdFormat: form.nameIdFormat,
+        mapEmailClaim: form.mapEmailClaim,
+        mapFirstNameClaim: form.mapFirstNameClaim,
+        mapLastNameClaim: form.mapLastNameClaim,
         enabled: form.enabled
       })
     });
@@ -95,10 +120,15 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
       setForm({
         id: payload.id,
         name: payload.name,
+        spEntityId: payload.spEntityId ?? "",
         idpEntityId: payload.idpEntityId,
         idpSsoUrl: payload.idpSsoUrl,
         idpSloUrl: payload.idpSloUrl ?? "",
         certificate: payload.certificate,
+        nameIdFormat: payload.nameIdFormat,
+        mapEmailClaim: payload.mapEmailClaim,
+        mapFirstNameClaim: payload.mapFirstNameClaim,
+        mapLastNameClaim: payload.mapLastNameClaim,
         enabled: payload.enabled
       });
       setMessage("SAML configuration saved.");
@@ -129,21 +159,10 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
 
   return (
     <div className="developer-dashboard">
-      <section className="developer-sidebar panel">
-        <p className="form-eyebrow">Developer RBAC</p>
-        <h1>SAML SSO</h1>
-        <p className="muted">Configure SAML-based SSO providers. Saved configurations can be enabled, disabled, edited, or deleted.</p>
-        <div className="permission-list">
-          <span>developer:sso</span>
-          <span>developer:saml</span>
-        </div>
-      </section>
-
       <section className="panel">
         <div className="panel-heading">
           <div>
-            <h2>{form.id ? "Edit SAML Configuration" : "Create SAML Configuration"}</h2>
-            <p className="muted">Upload the IdP certificate and save the IdP fields to generate SP setup URLs.</p>
+            <h1>{form.id ? "Edit SAML Configuration" : "Create SAML Configuration"}</h1>
           </div>
           <button className="secondary" type="button" onClick={() => setForm(blankForm)}>
             Create New
@@ -155,6 +174,9 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
             <Field label="Configuration Name" error={errors.name?.[0]}>
               <input value={form.name} onChange={(event) => update("name", event.target.value)} />
             </Field>
+            <Field label="SP Entity ID" error={errors.spEntityId?.[0]}>
+              <input placeholder="Leave blank to use generated metadata URL" value={form.spEntityId} onChange={(event) => update("spEntityId", event.target.value)} />
+            </Field>
             <Field label="IdP Entity ID" error={errors.idpEntityId?.[0]}>
               <input value={form.idpEntityId} onChange={(event) => update("idpEntityId", event.target.value)} />
             </Field>
@@ -164,12 +186,10 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
             <Field label="IdP SLO URL" error={errors.idpSloUrl?.[0]}>
               <input type="url" value={form.idpSloUrl} onChange={(event) => update("idpSloUrl", event.target.value)} />
             </Field>
+            <Field label="Certificate Upload" error={errors.certificate?.[0]}>
+              <input type="file" accept=".cer,.crt,.pem,.txt" onChange={(event) => uploadCertificate(event.target.files?.[0])} />
+            </Field>
           </div>
-
-          <Field label="IdP Signing Certificate" error={errors.certificate?.[0]}>
-            <input type="file" accept=".cer,.crt,.pem,.txt" onChange={(event) => uploadCertificate(event.target.files?.[0])} />
-            <textarea value={form.certificate} onChange={(event) => update("certificate", event.target.value)} />
-          </Field>
 
           <label className="toggle-row">
             <input type="checkbox" checked={form.enabled} onChange={(event) => update("enabled", event.target.checked)} />
@@ -204,7 +224,6 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
         <div className="panel-heading">
           <div>
             <h2>Saved SAML Providers</h2>
-            <p className="muted">Use these SP values on the identity provider side.</p>
           </div>
         </div>
 
@@ -217,22 +236,21 @@ export default function DeveloperSamlDashboard({ configurations, baseUrl }: { co
 
               return (
                 <article className="configuration-card" key={configuration.id}>
-                  <div>
-                    <div className="configuration-card-heading">
-                      <h3>{configuration.name}</h3>
-                      <span className={`status-pill ${configuration.enabled ? "active" : "inactive"}`}>{configuration.enabled ? "ENABLED" : "DISABLED"}</span>
-                    </div>
-                    <p className="muted">{configuration.idpEntityId}</p>
-                    <div className="endpoint-box compact">
-                      <div>
-                        <span>Entity ID</span>
-                        <code>{endpoints.entityId}</code>
-                      </div>
-                      <div>
-                        <span>ACS URL</span>
-                        <code>{endpoints.acsUrl}</code>
-                      </div>
-                    </div>
+                  <div className="configuration-name">
+                    <h3>{configuration.name}</h3>
+                    <span className={`status-pill ${configuration.enabled ? "active" : "inactive"}`}>{configuration.enabled ? "ENABLED" : "DISABLED"}</span>
+                  </div>
+                  <div className="configuration-field">
+                    <span>IdP</span>
+                    <code>{configuration.idpEntityId}</code>
+                  </div>
+                  <div className="configuration-field">
+                    <span>Entity ID</span>
+                    <code>{endpoints.entityId}</code>
+                  </div>
+                  <div className="configuration-field">
+                    <span>ACS URL</span>
+                    <code>{endpoints.acsUrl}</code>
                   </div>
                   <div className="configuration-actions">
                     <button className="secondary" type="button" onClick={() => editConfiguration(configuration)}>

@@ -59,8 +59,11 @@ export async function GET() {
       "/api/saml/{id}/metadata": {
         get: { summary: "Get SAML SP metadata", responses: { "200": { description: "SAML metadata XML" } } }
       },
+      "/api/saml/login": {
+        get: { summary: "Start SAML SSO login with active configuration", responses: { "302": { description: "Redirect to IdP" } } }
+      },
       "/api/saml/{id}/acs": {
-        post: { summary: "SAML assertion consumer service", responses: { "200": { description: "SAML ACS response" } } }
+        post: { summary: "Validate SAML response at assertion consumer service", responses: { "200": { description: "Validated SAML profile" } } }
       },
       "/api/scim/v2/Users": {
         get: { summary: "List SCIM users", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM users" } } },
@@ -71,6 +74,16 @@ export async function GET() {
         put: { summary: "Replace SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } },
         patch: { summary: "Patch SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } },
         delete: { summary: "Terminate SCIM user", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM user" } } }
+      },
+      "/api/scim/v2/Groups": {
+        get: { summary: "List SCIM groups", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM groups" } } },
+        post: { summary: "Create SCIM group", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "201": { description: "SCIM group" } } }
+      },
+      "/api/scim/v2/Groups/{id}": {
+        get: { summary: "Get SCIM group", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM group" } } },
+        put: { summary: "Replace SCIM group", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM group" } } },
+        patch: { summary: "Patch SCIM group", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "200": { description: "SCIM group" } } },
+        delete: { summary: "Delete SCIM group", security: [{ scimBearer: [] }, { scimBasic: [] }], responses: { "204": { description: "SCIM group deleted" } } }
       },
       "/api/scim/v2/ServiceProviderConfig": {
         get: {
@@ -86,11 +99,25 @@ export async function GET() {
           responses: { "200": { description: "SCIM schemas" } }
         }
       },
+      "/api/scim/v2/Schemas/{id}": {
+        get: {
+          summary: "Get SCIM schema",
+          security: [{ scimBearer: [] }, { scimBasic: [] }],
+          responses: { "200": { description: "SCIM schema" } }
+        }
+      },
       "/api/scim/v2/ResourceTypes": {
         get: {
           summary: "List SCIM resource types",
           security: [{ scimBearer: [] }, { scimBasic: [] }],
           responses: { "200": { description: "SCIM resource types" } }
+        }
+      },
+      "/api/scim/v2/ResourceTypes/{id}": {
+        get: {
+          summary: "Get SCIM resource type",
+          security: [{ scimBearer: [] }, { scimBasic: [] }],
+          responses: { "200": { description: "SCIM resource type" } }
         }
       }
     }

@@ -1,4 +1,5 @@
 import EmployeeForm from "@/components/EmployeeForm";
+import LogoutButton from "@/components/LogoutButton";
 import { requirePermission } from "@/lib/auth";
 import { redirect } from "next/navigation";
 
@@ -16,6 +17,9 @@ export default async function NewEmployeePage() {
           <div>
             <div className="brand">Success Day</div>
             <p className="slogan">HRIS for Hustler</p>
+          </div>
+          <div className="actions">
+            <LogoutButton />
           </div>
         </div>
         <section className="panel">
