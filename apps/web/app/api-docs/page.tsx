@@ -1,4 +1,4 @@
-import SwaggerDocs from "./swagger-docs";
+import ApiExplorer from "./api-explorer";
 
 export default function ApiDocsPage() {
   return (
@@ -23,11 +23,11 @@ export default function ApiDocsPage() {
           <div className="panel-heading">
             <div>
               <p className="eyebrow">API Docs</p>
-              <h1>Swagger UI</h1>
-              <p className="muted">Interactive OpenAPI documentation for employees and SCIM endpoints.</p>
+              <h1>API Explorer</h1>
+              <p className="muted">Interactive docs for employees and SCIM endpoints, with OpenAPI and Postman exports.</p>
             </div>
           </div>
-          <SwaggerDocs />
+          <ApiExplorer />
         </section>
       </div>
     </main>

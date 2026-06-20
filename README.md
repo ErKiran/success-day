@@ -20,6 +20,8 @@ Or:
 docker compose up --build
 ```
 
+If startup says Docker is not running, open Docker Desktop first and wait until the engine is ready.
+
 This starts:
 
 - Success Day at `http://localhost:3000`
