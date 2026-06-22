@@ -22,6 +22,19 @@ docker compose run --rm keycloak-bootstrap
 docker compose up --build success-day-web
 ```
 
+## Get Started With Success Day
+
+[![Watch the demo](https://img.youtube.com/vi/7zqocaB66f8/maxresdefault.jpg)](https://youtu.be/7zqocaB66f8?si=xb-Gt6RIe7LCuTtx)
+
+
+## SCIM with Okta
+
+[![SuccessDay HRIS to Okta SCIM Demo](https://img.youtube.com/vi/4FVbAhuL9CM/maxresdefault.jpg)](https://youtu.be/4FVbAhuL9CM?si=dxD4qV5uXjo4iOKV)
+
+## Success Day with Sailpoint 
+
+[![SuccessDay HRIS to SailPoint Demo](https://img.youtube.com/vi/_THpHbczo3Y/maxresdefault.jpg)](https://youtu.be/_THpHbczo3Y?si=Ve2FtIM-UmmuBx8R)
+
 If startup says Docker is not running, open Docker Desktop first and wait until the engine is ready.
 
 This starts:
@@ -38,15 +51,9 @@ The HR database starts empty.
 ## Default URLs
 
 - Success Day App: `http://localhost:3000`
-- Login Page: `http://localhost:3000/login`
-- Employees Page: `http://localhost:3000/employees`
-- Developer Dashboard: `http://localhost:3000/developer`
 - API Docs: `http://localhost:3000/api-docs`
-- OpenAPI JSON: `http://localhost:3000/api/openapi`
-- Postman Collection: `http://localhost:3000/api/postman`
 - Keycloak Admin Console: `http://localhost:8080`
 - SCIM Base URL: `http://localhost:3000/api/scim/v2`
-- SCIM Users Endpoint: `http://localhost:3000/api/scim/v2/Users`
 
 ## Credentials
 
